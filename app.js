@@ -2,7 +2,7 @@
 /* ===== CONFIGURACIÓN ===== */
 const CFG = {
   sheetId: "18tYLjsL-47vhCHZI41f_msb-amh3OvMYBkLD7H3iL88",
-  scriptUrl: "", // URL de tu Google Apps Script (termina en /exec). Ver instrucciones.
+  scriptUrl: "https://script.google.com/macros/s/AKfycbzPfoGRLkEkpC5nf4dcNhSHaBu_yejcEKYyLeXiTIa2uXD1zJt60bcROmhVWZA2bON9/exec", // URL de tu Google Apps Script (termina en /exec). Ver instrucciones.
   cacheMin: 5
 };
 
