@@ -2,7 +2,8 @@
 /* ===== CONFIGURACIÓN ===== */
 const CFG = {
   sheetId: "18tYLjsL-47vhCHZI41f_msb-amh3OvMYBkLD7H3iL88",
-  formEndpoint: "https://formsubmit.co/ajax/mcmelgar@gmail.com", // Las solicitudes llegan a este correo
+  accessKey: "", // Clave gratuita de web3forms.com (llega a tu correo). Si está vacía se usa FormSubmit.
+  formEndpoint: "https://formsubmit.co/ajax/mcmelgar@gmail.com",
   cacheMin: 5
 };
 
@@ -113,18 +114,28 @@ function form() {
 `;
   f.addEventListener("submit", async e => {
     e.preventDefault();
-    const d = new FormData(f);
-    if (d.get("_gotcha")) return;
-    d.append("_subject", "Nueva solicitud de booking - EarCandy");
-    d.append("_template", "table");
-    d.append("_captcha", "false");
+    const { _gotcha, ...d } = Object.fromEntries(new FormData(f));
+    if (_gotcha) return;
+    const subject = "Nueva solicitud de booking - EarCandy";
+    const w3 = !!CFG.accessKey;
+    const body = w3
+      ? { ...d, access_key: CFG.accessKey, subject, from_name: "EarCandy" }
+      : { ...d, _subject: subject, _template: "table", _captcha: "false" };
     btn.disabled = true; st.textContent = "Enviando…";
     try {
-      const r = await fetch(CFG.formEndpoint, { method: "POST", body: d, headers: { Accept: "application/json" } });
-      if (!r.ok) throw 0;
+      const r = await fetch(w3 ? "https://api.web3forms.com/submit" : CFG.formEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(body)
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || String(j.success) !== "true") throw new Error(j.message || r.status);
       f.reset();
       st.textContent = "Tu mensaje ha sido enviado con éxito. Recibirás una respuesta dentro de las siguientes 24 horas.";
-    } catch { st.textContent = "No se pudo enviar tu mensaje. Inténtalo de nuevo en unos minutos."; }
+    } catch (err) {
+      console.error("Formulario:", err);
+      st.textContent = "No se pudo enviar tu mensaje. Inténtalo de nuevo en unos minutos.";
+    }
     btn.disabled = false;
   });
 }
