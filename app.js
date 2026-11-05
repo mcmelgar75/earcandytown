@@ -30,8 +30,10 @@ function parseCSV(t) {
 }
 
 /* ===== DATOS (Google Sheets, primera pestaña) ===== */
+const FIELDS = ["artista", "instagram", "fotodeperfil", "genero", "ciudad", "formato", "bio", "spotify", "youtube", "tiktok", "video", "galeria", "destacados"];
+const BLANK = Object.fromEntries(FIELDS.map(k => [k, ""]));
 async function artists() {
-  const ck = "ec_artists", now = Date.now();
+  const ck = "ec_artists_v2", now = Date.now();
   try {
     const c = JSON.parse(sessionStorage.getItem(ck));
     if (c && now - c.t < CFG.cacheMin * 6e4) return c.d;
@@ -41,7 +43,7 @@ async function artists() {
   const [head, ...rows] = parseCSV(await res.text());
   const keys = head.map(key);
   const data = rows
-    .map(r => Object.fromEntries(keys.map((k, i) => [k, (r[i] || "").trim()])))
+    .map(r => ({ ...BLANK, ...Object.fromEntries(keys.map((k, i) => [k, (r[i] || "").trim()])) }))
     .filter(a => a.artista)
     .map(a => ({ ...a, slug: slug(a.artista) }))
     .sort((a, b) => a.artista.localeCompare(b.artista, "es"));
@@ -78,7 +80,7 @@ async function detail() {
     return;
   }
   document.title = `${a.artista} | EarCandy`;
-  $('meta[name="description"]').content = `Contrata a ${a.artista}. ${a.genero || ""} ${a.bio.slice(0, 120)}`.trim();
+  $('meta[name="description"]').content = `Contrata a ${a.artista}. ${a.genero} ${a.bio.slice(0, 120)}`.trim();
 
   const meta = [a.genero, a.formato, a.ciudad].filter(Boolean);
   const links = [["Instagram", a.instagram], ["Spotify", a.spotify], ["YouTube", a.youtube], ["TikTok", a.tiktok]].filter(([, u]) => safe(u));
@@ -86,7 +88,7 @@ async function detail() {
   const gal = split(a.galeria, /[\s,|]+/).filter(safe);
   const hits = split(a.destacados, /[;\n]/);
 
-  el.innerHTML = `
+  try { el.innerHTML = `
     <div class="ph">${safe(a.fotodeperfil) ? `<img src="${esc(a.fotodeperfil)}" alt="${esc(a.artista)}" width="600" height="600">` : ""}</div>
     <div>
       <h1>${esc(a.artista)}</h1>
@@ -100,7 +102,8 @@ async function detail() {
       ${yt ? `<h2>Video</h2><div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${yt}" title="Video de ${esc(a.artista)}" loading="lazy" allowfullscreen></iframe></div>` : ""}
       ${gal.length ? `<h2>Galería</h2><div class="gal">${gal.map(u => `<img src="${esc(u)}" alt="" loading="lazy">`).join("")}</div>` : ""}
       <a class="back" href="index.html#artistas">Volver al roster</a>
-    </div>`;
+    </div>`; }
+  catch (err) { console.error(err); el.innerHTML = '<p class="note">No pudimos mostrar esta ficha. <a href="index.html#artistas">Volver al roster</a></p>'; }
 }
 
 /* ===== FORMULARIO ===== */
