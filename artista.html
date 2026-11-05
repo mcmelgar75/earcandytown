@@ -12,10 +12,11 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="top"><div class="wrap">
-<a href="index.html"><img src="https://raw.githubusercontent.com/mcmelgar75/earcandytown/refs/heads/main/logowhite.png" alt="EarCandy"></a>
-<nav><a href="index.html#artistas">Roster</a><a href="index.html#contacto">Contacto y booking</a></nav>
-<a class="btn" href="index.html#contacto">Contratar artista</a></div></header>
+<header class="top" id="top"><div class="wrap">
+<a class="logo" href="index.html"><img src="https://raw.githubusercontent.com/mcmelgar75/earcandytown/refs/heads/main/logowhite.png" alt="EarCandy"></a>
+<button class="burger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav"><span></span></button>
+<nav id="nav"><a href="index.html#artistas">Roster</a><a href="index.html#contacto">Contacto y booking</a><a class="btn" href="index.html#contacto">Contratar artista</a></nav>
+</div></header>
 <main class="wrap"><article class="artist" id="artist"><p class="note">Cargando…</p></article></main>
 <footer><div class="wrap">© 2026 EarCandy (www.earcandy.town). Todos los derechos reservados.</div></footer>
 <script src="app.js" defer></script>

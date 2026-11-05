@@ -2,8 +2,7 @@
 /* ===== CONFIGURACIÓN ===== */
 const CFG = {
   sheetId: "18tYLjsL-47vhCHZI41f_msb-amh3OvMYBkLD7H3iL88",
-  formEndpoint: "", // Ej: "https://formspree.io/f/xxxxxxx". Si está vacío se abre el correo del usuario.
-  email: "",        // Correo que recibe las solicitudes (solo si formEndpoint está vacío).
+  formEndpoint: "https://formsubmit.co/ajax/mcmelgar@gmail.com", // Las solicitudes llegan a este correo
   cacheMin: 5
 };
 
@@ -108,25 +107,35 @@ async function detail() {
 
 /* ===== FORMULARIO ===== */
 function form() {
-  const f = $("#booking"), st = $("#status");
+  const f = $("#booking"), st = $("#status"), btn = $("button[type=submit]", f);
   const pre = new URLSearchParams(location.search).get("artista");
-  if (pre) $("#msg").value = `Artista de interés: ${pre}\n`;
+  if (pre) $("#msg").value = `Artista de interés: ${pre}
+`;
   f.addEventListener("submit", async e => {
     e.preventDefault();
     const d = new FormData(f);
     if (d.get("_gotcha")) return;
-    if (!CFG.formEndpoint) {
-      const body = `Nombre / Empresa: ${d.get("name")}\nCorreo: ${d.get("email")}\nTipo: ${d.get("type")}\n\n${d.get("message")}`;
-      location.href = `mailto:${CFG.email}?subject=${encodeURIComponent("Solicitud de booking")}&body=${encodeURIComponent(body)}`;
-      return;
-    }
-    st.textContent = "Enviando…";
+    d.append("_subject", "Nueva solicitud de booking - EarCandy");
+    d.append("_template", "table");
+    d.append("_captcha", "false");
+    btn.disabled = true; st.textContent = "Enviando…";
     try {
       const r = await fetch(CFG.formEndpoint, { method: "POST", body: d, headers: { Accept: "application/json" } });
       if (!r.ok) throw 0;
-      f.reset(); st.textContent = "Solicitud enviada. Te contactaremos pronto.";
-    } catch { st.textContent = "No se pudo enviar. Inténtalo de nuevo o escríbenos por correo."; }
+      f.reset();
+      st.textContent = "Tu mensaje ha sido enviado con éxito. Recibirás una respuesta dentro de las siguientes 24 horas.";
+    } catch { st.textContent = "No se pudo enviar tu mensaje. Inténtalo de nuevo en unos minutos."; }
+    btn.disabled = false;
   });
+}
+
+/* ===== MENÚ MÓVIL ===== */
+function menu() {
+  const top = $("#top"), b = $(".burger", top);
+  const set = o => { top.classList.toggle("open", o); b.setAttribute("aria-expanded", o); b.setAttribute("aria-label", o ? "Cerrar menú" : "Abrir menú"); };
+  b.addEventListener("click", () => set(!top.classList.contains("open")));
+  $("#nav").addEventListener("click", e => e.target.closest("a") && set(false));
+  document.addEventListener("keydown", e => e.key === "Escape" && set(false));
 }
 
 /* ===== INICIO ===== */
@@ -134,3 +143,4 @@ document.addEventListener("error", e => { if (e.target.tagName === "IMG") e.targ
 $("#grid") && home();
 $("#artist") && detail();
 $("#booking") && form();
+menu();

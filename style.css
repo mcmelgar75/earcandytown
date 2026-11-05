@@ -11,9 +11,24 @@ a{color:inherit}img{display:block;max-width:100%}
 
 .top{position:sticky;top:0;z-index:5;background:rgba(21,16,28,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .top .wrap{display:flex;align-items:center;gap:1.5rem;height:68px}
-.top img{height:34px;width:auto}
-.top nav{display:flex;gap:1.5rem;margin-left:auto;font-weight:500}
-.top nav a{text-decoration:none;color:var(--muted)}.top nav a:hover{color:var(--text)}
+.logo{flex-shrink:0;display:block}
+.top img{height:34px;width:auto;max-width:none}
+.top nav{display:flex;align-items:center;gap:1.5rem;margin-left:auto;font-weight:500}
+.top nav a:not(.btn){text-decoration:none;color:var(--muted)}.top nav a:not(.btn):hover{color:var(--text)}
+.burger{display:none;margin-left:auto;width:44px;height:44px;background:none;border:0;cursor:pointer;position:relative;flex-shrink:0}
+.burger::before,.burger::after,.burger span{content:"";position:absolute;left:10px;right:10px;height:2px;background:var(--text);border-radius:2px;transition:transform .25s,top .25s,opacity .2s}
+.burger::before{top:14px}.burger span{top:21px}.burger::after{top:28px}
+.top.open .burger span{opacity:0}
+.top.open .burger::before{top:21px;transform:rotate(45deg)}
+.top.open .burger::after{top:21px;transform:rotate(-45deg)}
+@media(max-width:720px){
+.top .wrap{height:60px}.top img{height:30px}
+.burger{display:block}
+.top nav{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;padding:.5rem 1.25rem 1.5rem;background:var(--bg);border-bottom:1px solid var(--line)}
+.top.open nav{display:flex}
+.top nav a:not(.btn){padding:1rem 0;font-size:1.1rem;border-bottom:1px solid var(--line)}
+.top nav .btn{margin-top:1.2rem;text-align:center}
+}
 .btn{display:inline-block;padding:.7rem 1.3rem;border-radius:99px;background:var(--pink);color:#1a0b14;font-weight:700;text-decoration:none;border:0;cursor:pointer;font:inherit;font-weight:700}
 .btn:hover{background:var(--lemon)}
 .btn.ghost{background:none;color:var(--text);border:1px solid var(--line);font-weight:500}
@@ -45,7 +60,7 @@ form{display:grid;gap:1rem;max-width:620px;margin-top:2rem}
 label{display:grid;gap:.4rem;font-weight:500}
 textarea{min-height:130px;resize:vertical}
 .hp{position:absolute;left:-9999px}
-#status{min-height:1.5em;color:var(--lemon)}
+#status{min-height:1.5em;color:var(--lemon);font-weight:500}
 
 .artist{display:grid;gap:2.5rem;padding:2.5rem 0 4rem}
 @media(min-width:800px){.artist{grid-template-columns:minmax(260px,420px) 1fr;gap:4rem}.artist .ph{position:sticky;top:96px}}
