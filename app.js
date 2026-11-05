@@ -2,8 +2,7 @@
 /* ===== CONFIGURACIÓN ===== */
 const CFG = {
   sheetId: "18tYLjsL-47vhCHZI41f_msb-amh3OvMYBkLD7H3iL88",
-  accessKey: "", // Clave gratuita de web3forms.com (llega a tu correo). Si está vacía se usa FormSubmit.
-  formEndpoint: "https://formsubmit.co/ajax/mcmelgar@gmail.com",
+  scriptUrl: "", // URL de tu Google Apps Script (termina en /exec). Ver instrucciones.
   cacheMin: 5
 };
 
@@ -106,7 +105,7 @@ async function detail() {
   catch (err) { console.error(err); el.innerHTML = '<p class="note">No pudimos mostrar esta ficha. <a href="index.html#artistas">Volver al roster</a></p>'; }
 }
 
-/* ===== FORMULARIO ===== */
+/* ===== FORMULARIO (envía vía Google Apps Script a tu Gmail) ===== */
 function form() {
   const f = $("#booking"), st = $("#status"), btn = $("button[type=submit]", f);
   const pre = new URLSearchParams(location.search).get("artista");
@@ -116,20 +115,11 @@ function form() {
     e.preventDefault();
     const { _gotcha, ...d } = Object.fromEntries(new FormData(f));
     if (_gotcha) return;
-    const subject = "Nueva solicitud de booking - EarCandy";
-    const w3 = !!CFG.accessKey;
-    const body = w3
-      ? { ...d, access_key: CFG.accessKey, subject, from_name: "EarCandy" }
-      : { ...d, _subject: subject, _template: "table", _captcha: "false" };
     btn.disabled = true; st.textContent = "Enviando…";
     try {
-      const r = await fetch(w3 ? "https://api.web3forms.com/submit" : CFG.formEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(body)
-      });
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok || String(j.success) !== "true") throw new Error(j.message || r.status);
+      if (!CFG.scriptUrl) throw new Error("Falta configurar CFG.scriptUrl en app.js");
+      // no-cors: Apps Script no devuelve cabeceras CORS; si la red falla, fetch lanza error.
+      await fetch(CFG.scriptUrl, { method: "POST", mode: "no-cors", body: new URLSearchParams(d) });
       f.reset();
       st.textContent = "Tu mensaje ha sido enviado con éxito. Recibirás una respuesta dentro de las siguientes 24 horas.";
     } catch (err) {
